@@ -1,0 +1,26 @@
+"""INTENTIONALLY INSECURE SYCUR SCANNER FIXTURE. Never deploy."""
+import os
+import pickle
+import subprocess
+import tempfile
+
+# CWE-78: user-controlled shell command (Bandit B602 / Semgrep).
+def archive_logs(user_supplied_name: str) -> None:
+    subprocess.run(f"tar -czf {user_supplied_name}.tgz ./logs", shell=True, check=True)
+
+# CWE-502: unsafe deserialization (Bandit B301 / Semgrep).
+def load_session(blob: bytes):
+    return pickle.loads(blob)
+
+# CWE-798: hardcoded password (Bandit B105).
+DEMO_PASSWORD = "SYcurTestPassword123!"  # fake fixture only, never used to authenticate
+
+# CWE-377 / B108: fixed temporary path (Bandit).
+def write_report(data: str) -> None:
+    with open('/tmp/sycur-report.txt', 'w', encoding='utf-8') as handle:
+        handle.write(data)
+
+# CWE-327 / B303: weak hash algorithm (Bandit).
+def legacy_digest(text: str) -> str:
+    import hashlib
+    return hashlib.md5(text.encode()).hexdigest()
